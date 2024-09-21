@@ -38,6 +38,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## [v0.50.9-evmos](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.50.9-evmos) - 2024-08-07
 
+## Features
+
+* (crypto/keyring) [#21653](https://github.com/cosmos/cosmos-sdk/pull/21653) New Linux-only backend that adds Linux kernel's `keyctl` support.
+
 ## [v0.50.10](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.50.10) - 2024-09-20
 
 ## Features
