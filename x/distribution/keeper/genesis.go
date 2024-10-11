@@ -8,7 +8,7 @@ import (
 )
 
 // InitGenesis sets distribution information for genesis
-func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) {
+func (k Keeper) InitGenesis(ctx sdk.Context, data *types.GenesisState) {
 	var moduleHoldings sdk.DecCoins
 
 	k.SetFeePool(ctx, data.FeePool)

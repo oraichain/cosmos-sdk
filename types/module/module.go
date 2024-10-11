@@ -324,7 +324,9 @@ func (m *Manager) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, genesisData 
 			continue
 		}
 
+		ctx.Logger().Error("Before init genesis module: " + moduleName)
 		moduleValUpdates := m.Modules[moduleName].InitGenesis(ctx, cdc, genesisData[moduleName])
+		ctx.Logger().Error("After init genesis module: " + moduleName)
 
 		// use these validator updates if provided, the module manager assumes
 		// only one module will update the validator set

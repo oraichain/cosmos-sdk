@@ -60,7 +60,9 @@ func (app *BaseApp) InitChain(req abci.RequestInitChain) (res abci.ResponseInitC
 	// add block gas meter for any genesis transactions (allow infinite gas)
 	app.deliverState.ctx = app.deliverState.ctx.WithBlockGasMeter(sdk.NewInfiniteGasMeter())
 
+	app.logger.Error("Before init chainer")
 	res = app.initChainer(app.deliverState.ctx, req)
+	app.logger.Error("After init chainer")
 
 	// sanity check
 	if len(req.Validators) > 0 {
@@ -305,6 +307,7 @@ func (app *BaseApp) DeliverTx(req abci.RequestDeliverTx) (res abci.ResponseDeliv
 // against that height and gracefully halt if it matches the latest committed
 // height.
 func (app *BaseApp) Commit() abci.ResponseCommit {
+	app.logger.Error("Before commit in abci")
 	defer telemetry.MeasureSince(time.Now(), "abci", "commit")
 
 	header := app.deliverState.ctx.BlockHeader()
@@ -315,6 +318,7 @@ func (app *BaseApp) Commit() abci.ResponseCommit {
 	// MultiStore (app.cms) so when Commit() is called is persists those values.
 	app.deliverState.ms.Write()
 	commitID := app.cms.Commit()
+	app.logger.Error("After commit in abci")
 
 	res := abci.ResponseCommit{
 		Data:         commitID.Hash,
