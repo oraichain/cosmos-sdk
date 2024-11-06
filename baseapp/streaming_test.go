@@ -40,6 +40,16 @@ func (m *MockABCIListener) ListenCommit(_ context.Context, _ abci.ResponseCommit
 
 var distKey1 = storetypes.NewKVStoreKey("distKey1")
 
+func TestMultiplePlugins(t *testing.T) {
+	var plugins []interface{}
+	require.Equal(t, len(plugins), 0)
+	mockListener1 := NewMockABCIListener("lis_1")
+	mockListener2 := NewMockABCIListener("lis_2")
+	plugins = append(plugins, mockListener1)
+	plugins = append(plugins, mockListener2)
+	require.Equal(t, len(plugins), 2)
+}
+
 func TestABCI_MultiListener_StateChanges(t *testing.T) {
 	anteKey := []byte("ante-key")
 	anteOpt := func(bapp *baseapp.BaseApp) { bapp.SetAnteHandler(anteHandlerTxTest(t, capKey1, anteKey)) }
