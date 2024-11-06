@@ -26,6 +26,7 @@ const (
 func (app *BaseApp) RegisterStreamingServices(appOpts servertypes.AppOptions, keys map[string]*storetypes.KVStoreKey) error {
 	// register streaming services
 	streamingCfg := cast.ToStringMap(appOpts.Get(StreamingTomlKey))
+	plugins := []storetypes.ABCIListener{}
 	for service := range streamingCfg {
 		pluginKey := fmt.Sprintf("%s.%s.%s", StreamingTomlKey, service, StreamingABCIPluginTomlKey)
 		pluginName := strings.TrimSpace(cast.ToString(appOpts.Get(pluginKey)))
@@ -35,27 +36,17 @@ func (app *BaseApp) RegisterStreamingServices(appOpts servertypes.AppOptions, ke
 			if err != nil {
 				return fmt.Errorf("failed to load streaming plugin: %w", err)
 			}
-			if err := app.registerStreamingPlugin(appOpts, keys, plugin); err != nil {
-				return fmt.Errorf("failed to register streaming plugin %w", err)
+			v, ok := plugin.(storetypes.ABCIListener)
+			if !ok {
+				return fmt.Errorf("unexpected plugin type %T", v)
 			}
+			plugins = append(plugins, v)
 		}
 	}
-
-	return nil
-}
-
-// registerStreamingPlugin registers streaming plugins with the BaseApp.
-func (app *BaseApp) registerStreamingPlugin(
-	appOpts servertypes.AppOptions,
-	keys map[string]*storetypes.KVStoreKey,
-	streamingPlugin interface{},
-) error {
-	v, ok := streamingPlugin.(storetypes.ABCIListener)
-	if !ok {
-		return fmt.Errorf("unexpected plugin type %T", v)
+	if len(plugins) > 0 {
+		app.registerABCIListenerPlugin(appOpts, keys, plugins)
 	}
 
-	app.registerABCIListenerPlugin(appOpts, keys, v)
 	return nil
 }
 
@@ -63,7 +54,7 @@ func (app *BaseApp) registerStreamingPlugin(
 func (app *BaseApp) registerABCIListenerPlugin(
 	appOpts servertypes.AppOptions,
 	keys map[string]*storetypes.KVStoreKey,
-	abciListener storetypes.ABCIListener,
+	abciListeners []storetypes.ABCIListener,
 ) {
 	stopNodeOnErrKey := fmt.Sprintf("%s.%s.%s", StreamingTomlKey, StreamingABCITomlKey, StreamingABCIStopNodeOnErrTomlKey)
 	stopNodeOnErr := cast.ToBool(appOpts.Get(stopNodeOnErrKey))
@@ -73,7 +64,7 @@ func (app *BaseApp) registerABCIListenerPlugin(
 	app.cms.AddListeners(exposedKeys)
 	app.SetStreamingManager(
 		storetypes.StreamingManager{
-			ABCIListeners: []storetypes.ABCIListener{abciListener},
+			ABCIListeners: abciListeners,
 			StopNodeOnErr: stopNodeOnErr,
 		},
 	)
