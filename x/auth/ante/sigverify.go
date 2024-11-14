@@ -122,7 +122,7 @@ func (spkd SetPubKeyDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate b
 	var events sdk.Events
 	for _, sig := range sigs {
 		events = append(events, sdk.NewEvent(sdk.EventTypeTx,
-			sdk.NewAttribute(sdk.AttributeKeyAccountSequence, fmt.Sprintf("%d", sig.Sequence)),
+			sdk.NewAttribute(sdk.AttributeKeyAccountSequence, fmt.Sprintf("%s/%d", sig.PubKey.Address().String(), sig.Sequence)),
 		))
 
 		sigBzs, err := signatureDataToBz(sig.Data)
