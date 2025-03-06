@@ -219,6 +219,10 @@ func (c Context) WithVoteInfos(voteInfo []abci.VoteInfo) Context {
 	return c
 }
 
+func (c *Context) SetGasMeter(meter storetypes.GasMeter) {
+	c.gasMeter = meter
+}
+
 // WithGasMeter returns a Context with an updated transaction GasMeter.
 func (c Context) WithGasMeter(meter storetypes.GasMeter) Context {
 	c.gasMeter = meter
